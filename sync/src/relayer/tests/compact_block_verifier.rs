@@ -1,9 +1,8 @@
 use super::helper::new_index_transaction;
-use crate::relayer::compact_block::{CompactBlock, ShortTransactionID};
+use crate::relayer::compact_block::CompactBlock;
 use crate::relayer::compact_block_verifier::{PrefilledVerifier, ShortIdsVerifier};
 use crate::relayer::error::{Error, Misbehavior};
-use ckb_core::transaction::IndexTransaction;
-use ckb_protocol::{short_transaction_id, short_transaction_id_keys};
+use ckb_core::transaction::{IndexTransaction, ProposalShortId};
 
 #[test]
 fn test_unordered_prefilled() {
@@ -65,12 +64,8 @@ fn test_cellbase_not_prefilled() {
 #[test]
 fn test_duplicated_short_ids() {
     let mut block = CompactBlock::default();
-    let mut short_ids: Vec<ShortTransactionID> = (1..5)
-        .map(new_index_transaction)
-        .map(|tx| {
-            let (key0, key1) = short_transaction_id_keys(block.header.nonce(), block.nonce);
-            short_transaction_id(key0, key1, &tx.transaction.witness_hash())
-        })
+    let mut short_ids: Vec<ProposalShortId> = (1..5)
+        .map(|i| new_index_transaction(i).transaction.proposal_short_id())
         .collect();
     short_ids.push(short_ids[0]);
     block.short_ids = short_ids;
@@ -84,12 +79,8 @@ fn test_duplicated_short_ids() {
 fn test_intersected_short_ids() {
     let mut block = CompactBlock::default();
     let prefilled: Vec<IndexTransaction> = (0..=5).map(new_index_transaction).collect();
-    let short_ids: Vec<ShortTransactionID> = (5..9)
-        .map(new_index_transaction)
-        .map(|tx| {
-            let (key0, key1) = short_transaction_id_keys(block.header.nonce(), block.nonce);
-            short_transaction_id(key0, key1, &tx.transaction.witness_hash())
-        })
+    let short_ids: Vec<ProposalShortId> = (5..9)
+        .map(|i| new_index_transaction(i).transaction.proposal_short_id())
         .collect();
     block.prefilled_transactions = prefilled;
     block.short_ids = short_ids;
@@ -108,13 +99,9 @@ fn test_normal() {
         .into_iter()
         .map(new_index_transaction)
         .collect();
-    let short_ids: Vec<ShortTransactionID> = vec![0, 3, 4]
+    let short_ids: Vec<ProposalShortId> = vec![0, 3, 4]
         .into_iter()
-        .map(new_index_transaction)
-        .map(|tx| {
-            let (key0, key1) = short_transaction_id_keys(block.header.nonce(), block.nonce);
-            short_transaction_id(key0, key1, &tx.transaction.witness_hash())
-        })
+        .map(|i| new_index_transaction(i).transaction.proposal_short_id())
         .collect();
     block.prefilled_transactions = prefilled;
     block.short_ids = short_ids;
