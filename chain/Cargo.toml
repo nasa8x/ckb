@@ -18,7 +18,7 @@ faketime = "0.2.0"
 numext-fixed-hash = { version = "0.1", features = ["support_rand", "support_heapsize", "support_serde"] }
 numext-fixed-uint = { version = "0.1", features = ["support_rand", "support_heapsize", "support_serde"] }
 fnv = "1.0"
-crossbeam-channel = "0.3"
+crossbeam-channel = "0.4"
 ckb-stop-handler = { path = "../util/stop-handler" }
 lru-cache = { git = "https://github.com/nervosnetwork/lru-cache", rev = "a35fdb8" }
 serde = "1.0"
